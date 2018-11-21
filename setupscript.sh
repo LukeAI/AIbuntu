@@ -43,6 +43,13 @@ sudo apt-get install libreoffice-l10n-en-gb libreoffice-help-en-gb thunderbird-l
 sudo apt-get install tlp tlp-rdw -y 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
 sudo tlp start 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
 
+# Install cuda
+wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.1.85-1_amd64.deb
+sudo apt install gnupg-curl
+sudo dpkg --install cuda-repo-ubuntu1604_9.1.85-1_amd64.deb
+sudo apt-get update
+sudo apt -y install cuda
+
 # Install Eclipse IDE and C/C++ development tools
 echo 'Installing Eclipse c/c++ tools and clang-format'
 sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls clang-format
