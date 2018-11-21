@@ -96,6 +96,14 @@ cd ~/Autoware/ros/
 rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
 ./catkin_make_release 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
 
+# Install latest stable docker
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt-get update
+sudo apt-get install -y docker-ce
+# add self to docker group
+sudo usermod -aG docker ${USER}
+su - ${USER}
 
 echo 'downloading and installing Teamviewer - if this step fails it is probably due to an expired TLS certificate, in which case, do it manually: https://download.teamviewer.com/download/linux/teamviewer_amd64.deb'
 # Install dependencies...
