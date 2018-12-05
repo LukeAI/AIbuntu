@@ -79,8 +79,8 @@ wget https://repo.continuum.io/archive/Anaconda3-5.3.0-Linux-x86_64.sh | tee -a 
 bash Anaconda3-5.3.0-Linux-x86_64.sh -bfp ~/anaconda3
 rm Anaconda3-5.3.0-Linux-x86_64.sh
 # hack to avoid clashes between anaconda and ROS
-wget https://gist.githubusercontent.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9/raw/6982a55347a047f5c6baa9a69264550dde3d7c85/.anaconda_with_ros_wrapper.bash | tee -a ~/install_logs/anaconda.log
-echo 'source .anaconda_with_ros_wrapper.bash' >> ~/.bashrc
+wget -P ~ https://gist.githubusercontent.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9/raw/6982a55347a047f5c6baa9a69264550dde3d7c85/.anaconda_with_ros_wrapper.bash | tee -a ~/install_logs/anaconda.log
+echo 'source ~/.anaconda_with_ros_wrapper.bash' >> ~/.bashrc
 source ~/.bashrc 
 conda update conda -y | tee -a ~/install_logs/anaconda.log
 conda update --all -y | tee -a ~/install_logs/anaconda.log
