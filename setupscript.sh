@@ -17,9 +17,7 @@ It is recommended to read through this script before running it so that you unde
 
 printf "\n\nIt is strongly recommended to bring your base ubuntu installation up to date before proceeding, if you have not already done so, please run:\n\nsudo apt-get update && sudo apt-get dist-upgrade -y && sudo systemctl reboot\n\nPlease note that this script *must* be ran with normal user permssions, not as sudo, although you will be asked for the sudo password\n\nPlease note that this script will also take a very long time to run, use a lot of bandwidth and a lot of cpu time downloading and building various packages. It will require the sudo lock for a lot of the time so it is worth first temporarily extending the retention time of the sudo lock so that you don't have to watch the script and repeatedly enter the sudo password. You can do this by running:\n\nsudo visudo\n\nand then changing the line: \"Defaults      env_reset\" to: \"Defaults      env_reset,timestamp_timeout=600\"\nThis will make the sudo lock last for 10 hours. Remember to change it back afterwards!\nIf you wish to cancel this script for now to implement the above recommendations, press ctrl+c. To continue, press Enter\n"
 read
-cd ~
 # get the sudo password
-sudo su $USER
 
 printf "Creating a directory to store logs: ~/install_logs\nPlease review afterwards to check for errors"
 mkdir -p ~/install_logs
