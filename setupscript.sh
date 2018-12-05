@@ -75,9 +75,9 @@ sudo apt-get install -y eclipse-cdt | tee -a ~/install_logs/apt.log
 # https://repo.continuum.io/archive/
 # It is recommended that users take the time to understand how conda works and how to use and share conda envs
 printf 'Installing Anaconda python for scientific computing - please take 15 minutes or so to read the docs and understand what it is and how it works \nInternal notes: https://3.basecamp.com/4075579/buckets/9044477/messages/1395346583 \nDocs: https://docs.anaconda.com/'
-wget https://repo.continuum.io/archive/Anaconda3-5.3.0-Linux-x86_64.sh | tee -a ~/install_logs/anaconda.log
-bash Anaconda3-5.3.0-Linux-x86_64.sh -bfp ~/anaconda3
-rm Anaconda3-5.3.0-Linux-x86_64.sh
+wget -P ~ https://repo.continuum.io/archive/Anaconda3-5.3.0-Linux-x86_64.sh | tee -a ~/install_logs/anaconda.log
+bash ~/Anaconda3-5.3.0-Linux-x86_64.sh -bfp ~/anaconda3
+rm ~/Anaconda3-5.3.0-Linux-x86_64.sh
 # hack to avoid clashes between anaconda and ROS
 wget -P ~ https://gist.githubusercontent.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9/raw/6982a55347a047f5c6baa9a69264550dde3d7c85/.anaconda_with_ros_wrapper.bash | tee -a ~/install_logs/anaconda.log
 echo 'source ~/.anaconda_with_ros_wrapper.bash' >> ~/.bashrc
@@ -116,6 +116,7 @@ sudo apt-get install -y python-catkin-pkg python-rosdep ros-$ROS_DISTRO-catkin l
 git clone https://github.com/CPFL/Autoware.git --recurse-submodules | tee -a ~/install_logs/autoware.log
 cd ~/Autoware/ros/src/
 catkin_init_workspace | tee -a ~/install_logs/autoware.log
+cd ../
 rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO | tee -a ~/install_logs/autoware.log
 ./catkin_make_release | tee -a ~/install_logs/autoware.log
 
