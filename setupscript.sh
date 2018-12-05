@@ -4,7 +4,7 @@
 
 :'
 This script:
-- uninstalls some bloat, enables extra repos for apt, installs lots of useful little things that make an Ubuntu installation complete - build essentials, codecs, spell-check dictionaries, vlc, advanced power management, common dependencies, Teamviewer.
+- uninstalls some bloat, enables extra repos for apt, installs lots of useful little things that make an Ubuntu installation complete - build essentials, codecs, ca-certificates, spell-check dictionaries, vlc, advanced power management, common dependencies, Teamviewer.
 - It downloads, compiles, installs and configures ROS and Autoware including all dependencies and a hack for dealing with environment conflicts. Note: This takes a *long* time.
 - It installs Eclipse and clang-format for c/c++
 - Downloads and installs the Anaconda scientific computing platform and creates sample enviornment for Tensorflow (GPU-enabled) with Spyder and another for Pytorch/Spyder (GPU enabled). These can be entered with "source activate tf" and "source activate pytorch" or through the Anaconda navigator. Note: these are included for pedagogical value and for quick testing - it is recommended to create new enviornments per application for actual development.
@@ -22,99 +22,151 @@ cd ~
 sudo su $USER
 
 printf "Creating a directory to store logs: ~/install_logs\nPlease review afterwards to check for errors"
-mkdir -p install_logs
+mkdir -p ~/install_logs
 
 echo "Getting rid of some of the bloat..."
-sudo apt-get purge -y unity-webapps-common aisleriot gnome-mahjongg gnome-mines gnome-sudoku -y 1> ~/install_logs/apt.log 2> ~/install_logs/apt.error.log
-sudo apt-get -y autoremove 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
+sudo apt-get purge -y unity-webapps-common aisleriot gnome-mahjongg gnome-mines gnome-sudoku -y | tee -a ~/install_logs/apt.log
+sudo apt-get -y autoremove | tee -a ~/install_logs/apt.log
 
-echo "Installing codecs, spell-check dictionaries, extra repos, vlc, advanced power management"
-sudo apt-get install ubuntu-restricted-extras vlc -y 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
+echo "Installing codecs, compilers, kernel headers, spell-check dictionaries, extra repos, vlc, advanced power management, git, pv, pxz"
+sudo apt-get install ubuntu-restricted-extras vlc gcc git-core pv pxz ca-certificates linux-headers-$(uname -r) -y | tee -a ~/install_logs/apt.log
 
 # enable canonical partner repos.
 sudo printf "\n#Canonical Partner Repos" >> /etc/apt/sources.list
 sudo printf "deb http://archive.canonical.com/ubuntu xenial partner" >> /etc/apt/sources.list
 
-# Install UK English Dictionary (for spellcheck in libreoffice, thunderbird)
+# Install UK English Dictionaries (for spellcheck in libreoffice, thunderbird)
 # If you want the canadian version or australian version etc. subs. 'gb' for 'ca' or 'au'
-sudo apt-get install libreoffice-l10n-en-gb libreoffice-help-en-gb thunderbird-locale-en-gb hunspell-en-gb hyphen-en-gb 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
+sudo apt-get install libreoffice-l10n-en-gb libreoffice-help-en-gb thunderbird-locale-en-gb hunspell-en-gb hyphen-en-gb | tee -a ~/install_logs/apt.log
 
 # install and enable advanced power management - useful for laptops
-sudo apt-get install tlp tlp-rdw -y 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
-sudo tlp start 1>> ~/install_logs/apt.log 2>> ~/install_logs/apt.error.log
+sudo apt-get install tlp tlp-rdw -y | tee -a ~/install_logs/apt.log
+sudo tlp start | tee -a ~/install_logs/tlp.log
 
 # Install cuda
-wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/cuda-repo-ubuntu1604_9.1.85-1_amd64.deb
-sudo apt install gnupg-curl
-sudo dpkg --install cuda-repo-ubuntu1604_9.1.85-1_amd64.deb
-sudo apt-get update
-sudo apt -y install cuda
+echo 'Installing CUDA - make sure that you enable the Nvidia driver selected in the Additional Drivers Menu to be able to use it.'
+wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 | tee -a ~/install_logs/cuda.log
+mv cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 cuda10-repo.deb | tee -a ~/install_logs/cuda.log
+sudo dpkg -i cuda-repo.deb | tee -a ~/install_logs/cuda.log
+sudo apt-get update | tee -a ~/install_logs/cuda.log
+sudo apt-get install cuda -y | tee -a ~/install_logs/cuda.log
 
-# Install Eclipse IDE and C/C++ development tools
+
+# add and enable the nvidia persistence daemon
+sudo mkdir -p /usr/lib/systemd/system
+echo '[Unit]
+Description=NVIDIA Persistence Daemon
+Wants=syslog.target
+
+[Service]
+Type=forking
+PIDFile=/var/run/nvidia-persistenced/nvidia-persistenced.pid
+Restart=always
+ExecStart=/usr/bin/nvidia-persistenced --verbose
+ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
+
+[Install]
+WantedBy=multi-user.target' | sudo tee --append /usr/lib/systemd/system/nvidia-persistenced.service > /dev/null
+sudo systemctl enable nvidia-persistenced | tee -a ~/install_logs/cuda.log
+
+# Install Eclipse IDE and C/C++ development tools including clang
 echo 'Installing Eclipse c/c++ tools and clang-format'
-sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls clang-format
-sudo apt-get install -y eclipse-cdt
+sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls clang-format | tee -a ~/install_logs/apt.log
+sudo apt-get install -y eclipse-cdt | tee -a ~/install_logs/apt.log
 
 # https://repo.continuum.io/archive/
 # It is recommended that users take the time to understand how conda works and how to use and share conda envs
 printf 'Installing Anaconda python for scientific computing - please take 15 minutes or so to read the docs and understand what it is and how it works \nInternal notes: https://3.basecamp.com/4075579/buckets/9044477/messages/1395346583 \nDocs: https://docs.anaconda.com/'
-wget https://repo.continuum.io/archive/Anaconda3-5.3.0-Linux-x86_64.sh
+wget https://repo.continuum.io/archive/Anaconda3-5.3.0-Linux-x86_64.sh | tee -a ~/install_logs/anaconda.log
 bash Anaconda3-5.3.0-Linux-x86_64.sh -bfp ~/anaconda3
 rm Anaconda3-5.3.0-Linux-x86_64.sh
 # hack to avoid clashes between anaconda and ROS
-wget https://gist.githubusercontent.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9/raw/6982a55347a047f5c6baa9a69264550dde3d7c85/.anaconda_with_ros_wrapper.bash
+wget https://gist.githubusercontent.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9/raw/6982a55347a047f5c6baa9a69264550dde3d7c85/.anaconda_with_ros_wrapper.bash | tee -a ~/install_logs/anaconda.log
 echo 'source .anaconda_with_ros_wrapper.bash' >> ~/.bashrc
 source ~/.bashrc 
-conda update conda -y 1>> ~/install_logs/conda.log 2>> ~/install_logs/conda.error.log
-conda update --all -y 1>> ~/install_logs/conda.log 2>> ~/install_logs/conda.error.log
+conda update conda -y | tee -a ~/install_logs/anaconda.log
+conda update --all -y | tee -a ~/install_logs/anaconda.log
 
-#Spyder IDE can be launched with the appropriate environment by selecting the env from the drop down menu at the top of Anaconda Navigator. This can be pinned permanently to the Ubuntu side-bar by right clicking the icon
+# Spyder IDE can be launched with the appropriate environment by selecting the env from the drop down menu at the top of Anaconda Navigator. This can be pinned permanently to the Ubuntu side-bar by right clicking the icon
 
 # create a tensorflow env
 # Note: you will have to install and enable the NVIDIA gpu driver for this to work
 # if you do not have an nvidia gpu you can install the non-gpu versions by changing 'tensorflow-gpu' to 'tensorflow'
 echo 'Creating conda tensorflow environment (gpu version) called tf'
-conda create --name tf -y && source activate tf && conda install tensorflow-gpu -y && conda install -c menpo opencv3 -y && conda install spyder -y 1>> ~/install_logs/conda.log 2>> ~/install_logs/conda.error.log
+conda create --name tf -y && source activate tf && conda install tensorflow-gpu -y && conda install -c menpo opencv3 -y && conda install spyder -y | tee -a ~/install_logs/anaconda.log
 
 # create a pytorch env
 # if you do not have an nvidia gpu you can install the non-gpu versions by changing 'pytorch-gpu' to 'pytorch'
 echo 'Creating conda pytorch environment (gpu version) env called pytorch'
-conda create --name pytorch -y && source activate pytorch && conda install -c anaconda pytorch-gpu -y && conda install -c menpo opencv3 -y && conda install spyder -y 1>> ~/install_logs/conda.log 2>> ~/install_logs/conda.error.log
+conda create --name pytorch -y && source activate pytorch && conda install -c anaconda pytorch-gpu -y && conda install -c menpo opencv3 -y && conda install spyder -y | tee -a ~/install_logs/anaconda.log
 
 # Install ROS
 echo 'downloading, building and installing ROS'
-sudo echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
-sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
-sudo apt-get update 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
-sudo apt-get install ros-kinetic-desktop-full -y 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
-sudo /usr/bin/rosdep init 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
-/usr/bin/rosdep update 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
+sudo echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+sudo apt-get update | tee -a ~/install_logs/ros.log
+sudo apt-get install ros-kinetic-desktop-full -y | tee -a ~/install_logs/ros.log
+sudo /usr/bin/rosdep init | tee -a ~/install_logs/ros.log
+/usr/bin/rosdep update | tee -a ~/install_logs/ros.log
 echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
-sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool build-essential -y 1>> ~/install_logs/ros.log 2>> ~/install_logs/ros.error.log
+sudo apt-get install python-rosinstall python-rosinstall-generator python-wstool build-essential -y | tee -a ~/install_logs/ros.log
 
 # Install and build Autoware
 echo 'downloading, building, configuring and installing Autoware'
 source /opt/ros/kinetic/setup.bash
-sudo apt-get install -y python-catkin-pkg python-rosdep ros-$ROS_DISTRO-catkin libmosquitto-dev gksu 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
-git clone https://github.com/CPFL/Autoware.git --recurse-submodules 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
+sudo apt-get install -y python-catkin-pkg python-rosdep ros-$ROS_DISTRO-catkin libmosquitto-dev gksu | tee -a ~/install_logs/autoware.log
+git clone https://github.com/CPFL/Autoware.git --recurse-submodules | tee -a ~/install_logs/autoware.log
 cd ~/Autoware/ros/src/
-catkin_init_workspace 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
-cd ~/Autoware/ros/
-rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
-./catkin_make_release 1>> ~/install_logs/autoware.log 2>> ~/install_logs/autoware.error.log
+catkin_init_workspace | tee -a ~/install_logs/autoware.log
+rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO | tee -a ~/install_logs/autoware.log
+./catkin_make_release | tee -a ~/install_logs/autoware.log
 
 # Install latest stable docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-sudo apt-get update
-sudo apt-get install -y docker-ce
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | tee -a ~/install_logs/docker.log
+sudo apt-get update | tee -a ~/install_logs/docker.log
+sudo apt-get install -y docker-ce | tee -a ~/install_logs/docker.log
 # add self to docker group
-sudo usermod -aG docker ${USER}
-su - ${USER}
+sudo usermod -aG docker ${USER} | tee -a ~/install_logs/docker.log
+# install nvidia-docker
+# If you have nvidia-docker 1.0 installed: we need to remove it and all existing GPU containers
+docker volume ls -q -f driver=nvidia-docker | xargs -r -I{} -n1 docker ps -q -a -f volume={} | xargs -r docker rm -f | tee -a ~/install_logs/docker.log
+sudo apt-get purge -y nvidia-docker | tee -a ~/install_logs/docker.log
 
+# Add the package repositories for nvidia-docker2
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | \
+  sudo apt-key add -
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | \
+  sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update | tee -a ~/install_logs/docker.log
+
+# Install nvidia-docker2 and reload the Docker daemon configuration
+sudo apt-get install -y nvidia-docker2 | tee -a ~/install_logs/docker.log
+sudo pkill -SIGHUP dockerd | tee -a ~/install_logs/docker.log
+
+# You can test if it's working by running: docker run --runtime=nvidia --rm nvidia/cuda:9.0-base nvidia-smi
+
+# set gnome-terminal shortcuts to cycle through tabs with ctrl+tab and ctrl+shit+tab like a web browser
+gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ next-tab '<Primary>Tab' | tee -a ~/install_logs/gnome.log
+gsettings set org.gnome.Terminal.Legacy.Keybindings:/org/gnome/terminal/legacy/keybindings/ prev-tab '<Primary><Shift>Tab' | tee -a ~/install_logs/gnome.log
+
+# function for setting gnome-terminal tab names with: set-title tab title name
+echo '# set title
+function set-title() {
+  if [[ -z "$ORIG" ]]; then
+    ORIG=$PS1
+  fi
+  TITLE="\[\e]2;$*\a\]"
+  PS1=${ORIG}${TITLE}
+}' >> ~/.bashrc
+
+
+
+# Teamviewer
 echo 'downloading and installing Teamviewer - if this step fails it is probably due to an expired TLS certificate, in which case, do it manually: https://download.teamviewer.com/download/linux/teamviewer_amd64.deb'
 # Install dependencies...
-sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls
+sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls | tee -a ~/install_logs/teamviewer.log
 
 # TLS Cert - the site is trusted by firefox but not wget by default, best practice is to download securely with the cert:
 echo '-----BEGIN CERTIFICATE-----
