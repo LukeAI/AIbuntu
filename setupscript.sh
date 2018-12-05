@@ -164,7 +164,7 @@ function set-title() {
 # Teamviewer
 echo 'downloading and installing Teamviewer - if this step fails it is probably due to an expired TLS certificate, in which case, do it manually: https://download.teamviewer.com/download/linux/teamviewer_amd64.deb'
 # Install dependencies...
-sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls | tee -a ~/install_logs/teamviewer.log
+sudo apt-get install -y qml-module-qtquick-privatewidgets qml-module-qtquick-dialogs qtdeclarative5-controls-plugin qml-module-qtquick-controls | tee -a ~/install_logs/teamviewer.log
 
 # TLS Cert - the site is trusted by firefox but not wget by default, best practice is to download securely with the cert:
 echo '-----BEGIN CERTIFICATE-----
