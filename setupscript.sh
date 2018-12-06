@@ -43,9 +43,10 @@ sudo tlp start | tee -a ~/install_logs/tlp.log
 
 # Install cuda
 echo 'Installing CUDA - make sure that you enable the Nvidia driver selected in the Additional Drivers Menu to be able to use it.'
-wget https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 | tee -a ~/install_logs/cuda.log
-mv cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 cuda-repo.deb | tee -a ~/install_logs/cuda.log
-sudo dpkg -i cuda-repo.deb | tee -a ~/install_logs/cuda.log
+wget -P ~ https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 | tee -a ~/install_logs/cuda.log
+mv ~/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 ~/cuda-repo.deb | tee -a ~/install_logs/cuda.log
+sudo dpkg -i ~/cuda-repo.deb | tee -a ~/install_logs/cuda.log
+sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
 sudo apt-get update | tee -a ~/install_logs/cuda.log
 sudo apt-get install cuda -y | tee -a ~/install_logs/cuda.log
 
