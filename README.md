@@ -1,7 +1,7 @@
 # AIbuntu
 
 Run with no options for more info. This script takes a *really* long time to run.
-
+ 
 This script:
 - uninstalls some bloat, enables extra repos for apt, installs lots of useful little things that make an Ubuntu installation complete - build essentials, codecs, spell-check dictionaries, vlc, advanced power management, common dependencies, Teamviewer.
 - It downloads, compiles, installs and configures ROS and Autoware including all dependencies and a hack for dealing with environment conflicts. Note: This takes a *long* time.
