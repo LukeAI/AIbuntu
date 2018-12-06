@@ -48,7 +48,7 @@ mv ~/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 ~/cuda-repo.deb
 sudo dpkg -i ~/cuda-repo.deb | tee -a ~/install_logs/cuda.log
 sudo apt-key add /var/cuda-repo-10-0-local-10.0.130-410.48/7fa2af80.pub
 sudo apt-get update | tee -a ~/install_logs/cuda.log
-sudo apt-get install cuda -y | tee -a ~/install_logs/cuda.log
+sudo apt-get install cuda nvidia-cuda-toolkit -y | tee -a ~/install_logs/cuda.log
 
 
 # add and enable the nvidia persistence daemon
