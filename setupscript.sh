@@ -73,6 +73,9 @@ echo 'Installing Eclipse c/c++ tools and clang-format'
 sudo apt-get install -y qtdeclarative5-controls-plugin qml-module-qtquick-controls clang-format | tee -a ~/install_logs/apt.log
 sudo apt-get install -y eclipse-cdt | tee -a ~/install_logs/apt.log
 
+# install skype
+sudo snap install skype
+
 # https://repo.continuum.io/archive/
 # It is recommended that users take the time to understand how conda works and how to use and share conda envs
 printf 'Installing Anaconda python for scientific computing - please take 15 minutes or so to read the docs and understand what it is and how it works \nInternal notes: https://3.basecamp.com/4075579/buckets/9044477/messages/1395346583 \nDocs: https://docs.anaconda.com/'
