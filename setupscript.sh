@@ -41,7 +41,12 @@ sudo apt-get install libreoffice-l10n-en-gb libreoffice-help-en-gb thunderbird-l
 sudo apt-get install tlp tlp-rdw -y | tee -a ~/install_logs/apt.log
 sudo tlp start | tee -a ~/install_logs/tlp.log
 
-# Install cuda
+# install terminator - best terminal out there!
+sudo add-apt-repository ppa:gnome-terminator
+sudo apt-get update
+sudo apt-get install terminator
+
+# Install cuda - you may have to shutdown (not just 'restart') and then boot your computer afterwards in order to be able to build against it (eg. for building Autoware.
 echo 'Installing CUDA - make sure that you enable the Nvidia driver selected in the Additional Drivers Menu to be able to use it.'
 wget -P ~ https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 | tee -a ~/install_logs/cuda.log
 mv ~/cuda-repo-ubuntu1604-10-0-local-10.0.130-410.48_1.0-1_amd64 ~/cuda-repo.deb | tee -a ~/install_logs/cuda.log
@@ -52,7 +57,8 @@ sudo apt-get install cuda nvidia-cuda-toolkit -y | tee -a ~/install_logs/cuda.lo
 echo 'export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}' >> ~/.bashrc
 
 
-# add and enable the nvidia persistence daemon
+# add and enable a unit file for the nvidia persistence daemon
+# this probably isn't necessary most of the time - try this if you have problems with the nvidia persistence daemon not starting at boot.
 sudo mkdir -p /usr/lib/systemd/system
 echo '[Unit]
 Description=NVIDIA Persistence Daemon
