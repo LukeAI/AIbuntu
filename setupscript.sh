@@ -41,10 +41,17 @@ sudo apt-get install libreoffice-l10n-en-gb libreoffice-help-en-gb thunderbird-l
 sudo apt-get install tlp tlp-rdw -y | tee -a ~/install_logs/apt.log
 sudo tlp start | tee -a ~/install_logs/tlp.log
 
-# install terminator - best terminal out there!
-sudo add-apt-repository ppa:gnome-terminator
+# install up-to-date git
+sudo add-apt-repository ppa:git-core/ppa
 sudo apt-get update
-sudo apt-get install terminator
+sudo apt-get install git
+
+# configure to securely store credentials
+sudo apt-get install libsecret-1-0 libsecret-1-dev
+cd /usr/share/doc/git/contrib/credential/libsecret
+sudo make
+git config --global credential.helper /usr/share/doc/git/contrib/credential/libsecret/git-credential-libsecret
+cd ~
 
 # Install cuda - you may have to shutdown (not just 'restart') and then boot your computer afterwards in order to be able to build against it (eg. for building Autoware.
 echo 'Installing CUDA - make sure that you enable the Nvidia driver selected in the Additional Drivers Menu to be able to use it.'
@@ -86,9 +93,9 @@ sudo snap install skype
 # https://repo.continuum.io/archive/
 # It is recommended that users take the time to understand how conda works and how to use and share conda envs
 printf 'Installing Anaconda python for scientific computing - please take 15 minutes or so to read the docs and understand what it is and how it works \nInternal notes: https://3.basecamp.com/4075579/buckets/9044477/messages/1395346583 \nDocs: https://docs.anaconda.com/'
-wget -P ~ https://repo.continuum.io/archive/Anaconda3-5.3.0-Linux-x86_64.sh | tee -a ~/install_logs/anaconda.log
-bash ~/Anaconda3-5.3.0-Linux-x86_64.sh -bfp ~/anaconda3
-rm ~/Anaconda3-5.3.0-Linux-x86_64.sh
+wget -P ~ https://repo.anaconda.com/archive/Anaconda3-2018.12-Linux-x86_64.sh | tee -a ~/install_logs/anaconda.log
+bash ~/Anaconda3-2018.12-Linux-x86_64.sh -bfp ~/anaconda3
+rm ~/Anaconda3-2018.12-Linux-x86_64.sh
 # hack to avoid clashes between anaconda and ROS
 wget -P ~ https://gist.githubusercontent.com/StefanFabian/17fa715e783cd2be6a32cd5bbb98acd9/raw/6982a55347a047f5c6baa9a69264550dde3d7c85/.anaconda_with_ros_wrapper.bash | tee -a ~/install_logs/anaconda.log
 echo 'source ~/.anaconda_with_ros_wrapper.bash' >> ~/.bashrc
@@ -222,6 +229,11 @@ JKbu6ou5V+VjyVtId8sXA1BAiFVI9sAA2ZPv3Cw5H4jqOAkD7oDIN43K/PKhsCGM
 wget --ca-certificate=teamviewer.tls https://download.teamviewer.com/download/linux/teamviewer_amd64.deb
 rm teamviewer.tls
 sudo dpkg -i teamviewer_amd64.deb
+
+
+# Install nodejs and npm
+curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
 
 # To change username from 'user' to 'phil' (don't do this whilst logged in, use a TTL shell as root)
