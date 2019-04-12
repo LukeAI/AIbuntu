@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+# 
 # luke@aidrivers.ai
 
 :'
@@ -68,19 +68,18 @@ echo 'export PATH=/usr/local/cuda-10.0/bin${PATH:+:${PATH}}' >> ~/.bashrc
 # this probably isn't necessary most of the time - try this if you have problems with the nvidia persistence daemon not starting at boot.
 sudo mkdir -p /usr/lib/systemd/system
 echo '[Unit]
-Description=NVIDIA Persistence Daemon
+Description=set persistence mode and cap power usage of GPU
 Wants=syslog.target
+After=nvidia-persistenced.service
 
 [Service]
 Type=forking
-PIDFile=/var/run/nvidia-persistenced/nvidia-persistenced.pid
 Restart=always
-ExecStart=/usr/bin/nvidia-persistenced --verbose
-ExecStopPost=/bin/rm -rf /var/run/nvidia-persistenced
-
+ExecStart=/bin/sh -c "sudo nvidia-smi -pm 1 && sudo nvidia-smi -pl 249"
+ 
 [Install]
-WantedBy=multi-user.target' | sudo tee --append /usr/lib/systemd/system/nvidia-persistenced.service > /dev/null
-sudo systemctl enable nvidia-persistenced | tee -a ~/install_logs/cuda.log
+WantedBy=multi-user.target' | sudo tee --append /usr/lib/systemd/system/nvidia-powerlimit.service > /dev/null
+sudo systemctl enable nvidia-powerlimit | tee -a ~/install_logs/cuda.log
 
 # Install Eclipse IDE and C/C++ development tools including clang
 echo 'Installing Eclipse c/c++ tools and clang-format'
