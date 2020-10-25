@@ -235,6 +235,9 @@ curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 
+echo "you probably need to reboot now"
+
+
 # To change username from 'user' to 'phil' (don't do this whilst logged in, use a TTL shell as root)
 # sudo usermod -l phil user
 # sudo usermod -d /home/newHomeDir -m newUsername
