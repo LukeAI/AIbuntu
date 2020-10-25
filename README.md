@@ -1,3 +1,7 @@
+# Update
+I'm not maintaining this script anymore. I've been told it's useful so I'll leave it here for reference, but my advice is to look through and use it to help you do what you want to do, rather than just running it blindly. You might not need Anaconda, Autoware etc. so if you don't, don't install them.
+
+
 # AIbuntu
 
 Run with no options for more info. This script takes a *really* long time to run.
